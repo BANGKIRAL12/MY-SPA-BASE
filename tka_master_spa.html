@@ -1,0 +1,1711 @@
+<!DOCTYPE html>
+<html lang="id" class="h-full bg-slate-50">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TKA Master - Platform Latihan Soal Interaktif</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#f0f3ff',
+                            100: '#e0e7ff',
+                            500: '#6366f1',
+                            600: '#4f46e5',
+                            700: '#4338ca',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Inter Font & Lucide Icons -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #f1f5f9; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 9999px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    </style>
+</head>
+<body class="h-full flex flex-col text-slate-800 antialiased selection:bg-brand-500 selection:text-white">
+
+    <!-- Header / Navbar -->
+    <header class="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3 cursor-pointer" onclick="app.showDashboard()">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-brand-600 to-indigo-500 flex items-center justify-center text-white shadow-md shadow-brand-500/20">
+                    <i data-lucide="graduation-cap" class="w-6 h-6"></i>
+                </div>
+                <div>
+                    <h1 class="font-bold text-lg leading-tight text-slate-900">TKA Master</h1>
+                    <p class="text-xs text-slate-500">Tes Kemampuan Akademik Pro</p>
+                </div>
+            </div>
+
+            <div class="flex items-center space-x-3">
+                <button id="btn-header-demo" onclick="app.loadDemoData()" class="hidden sm:inline-flex items-center space-x-1.5 text-xs font-semibold text-brand-600 bg-brand-50 hover:bg-brand-100 px-3 py-2 rounded-lg transition-colors">
+                    <i data-lucide="sparkles" class="w-4 h-4"></i>
+                    <span>Muat Data Demo</span>
+                </button>
+                <div id="header-bank-badge" class="hidden text-xs bg-slate-100 text-slate-600 px-3 py-1.5 rounded-full font-medium border border-slate-200">
+                    <span id="header-bank-name" class="max-w-[150px] truncate inline-block align-bottom">Belum ada Bank Soal</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Toast Notification Container -->
+    <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col space-y-2 pointer-events-none"></div>
+
+    <!-- Modal Dialog System -->
+    <div id="modal-overlay" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4 transition-opacity duration-200">
+        <div class="bg-white rounded-2xl shadow-xl max-w-md w-full p-6 transform transition-transform scale-95" id="modal-box">
+            <div class="flex items-center space-x-3 mb-4" id="modal-header">
+                <div id="modal-icon-bg" class="w-10 h-10 rounded-full bg-amber-100 text-amber-600 flex items-center justify-center flex-shrink-0">
+                    <i id="modal-icon" data-lucide="alert-triangle" class="w-5 h-5"></i>
+                </div>
+                <h3 id="modal-title" class="font-bold text-slate-900 text-lg">Konfirmasi</h3>
+            </div>
+            <p id="modal-message" class="text-slate-600 text-sm leading-relaxed mb-6">Apakah Anda yakin ingin melanjutkan tindakan ini?</p>
+            <div class="flex items-center justify-end space-x-3">
+                <button id="modal-btn-cancel" class="px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-100 rounded-lg transition-colors">Batal</button>
+                <button id="modal-btn-confirm" class="px-4 py-2 text-sm font-medium text-white bg-brand-600 hover:bg-brand-700 rounded-lg shadow-sm transition-colors">Ya, Lanjutkan</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Container View switcher -->
+    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+
+        <!-- VIEW 1: DASHBOARD & PRE-QUIZ SETUP -->
+        <section id="view-dashboard" class="space-y-8">
+            <!-- Hero Banner -->
+            <div class="bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 rounded-2xl p-6 sm:p-8 text-white shadow-xl relative overflow-hidden">
+                <div class="absolute -right-10 -bottom-10 w-60 h-60 bg-brand-500/10 rounded-full blur-3xl pointer-events-none"></div>
+                <div class="relative z-10 max-w-2xl">
+                    <span class="inline-flex items-center space-x-1.5 bg-brand-500/20 text-brand-300 text-xs px-3 py-1 rounded-full font-medium border border-brand-500/30 mb-3">
+                        <i data-lucide="zap" class="w-3.5 h-3.5"></i>
+                        <span>Platform Simulasi TKA 2026</span>
+                    </span>
+                    <h2 class="text-2xl sm:text-3xl font-extrabold tracking-tight mb-2">Siapkan Kemampuan Akademik Terbaikmu</h2>
+                    <p class="text-slate-300 text-sm sm:text-base leading-relaxed">
+                        Unggah bank soal berformat JSON, tentukan preferensi kuis, dan dapatkan analisis rekomendasi belajar real-time berbasis tipe soal TKA mutakhir.
+                    </p>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                <!-- File Upload & Bank Soal List (Left Column - 7 cols) -->
+                <div class="lg:col-span-7 space-y-6">
+                    <!-- Dropzone -->
+                    <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
+                        <h3 class="text-base font-semibold text-slate-900 mb-1 flex items-center justify-between">
+                            <span>Unggah Bank Soal (.json)</span>
+                            <button onclick="app.downloadTemplateSchema()" class="text-xs text-brand-600 hover:text-brand-700 font-medium inline-flex items-center space-x-1">
+                                <i data-lucide="download" class="w-3.5 h-3.5"></i>
+                                <span>Unduh Template JSON</span>
+                            </button>
+                        </h3>
+                        <p class="text-xs text-slate-500 mb-4">Pilih file JSON dari komputer atau seret file ke area di bawah ini.</p>
+                        
+                        <div id="dropzone" class="border-2 border-dashed border-slate-300 hover:border-brand-500 bg-slate-50/50 hover:bg-brand-50/30 rounded-xl p-8 text-center transition-all cursor-pointer group">
+                            <input type="file" id="json-file-input" accept=".json" class="hidden">
+                            <div class="w-12 h-12 rounded-full bg-slate-100 group-hover:bg-brand-100 group-hover:scale-110 text-slate-500 group-hover:text-brand-600 flex items-center justify-center mx-auto mb-3 transition-all">
+                                <i data-lucide="upload-cloud" class="w-6 h-6"></i>
+                            </div>
+                            <p class="text-sm font-medium text-slate-700 group-hover:text-brand-600">
+                                Klik untuk mengunggah <span class="text-slate-400 font-normal">atau seret file ke sini</span>
+                            </p>
+                            <p class="text-xs text-slate-400 mt-1">Mendukung format standar JSON Bank Soal TKA</p>
+                        </div>
+
+                        <div class="mt-4 flex items-center justify-between text-xs text-slate-500 pt-2 border-t border-slate-100">
+                            <span>Belum punya file?</span>
+                            <button onclick="app.loadDemoData()" class="text-brand-600 hover:underline font-semibold flex items-center space-x-1">
+                                <i data-lucide="play-circle" class="w-4 h-4"></i>
+                                <span>Gunakan Data Demo Soal TKA</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Saved Banks List -->
+                    <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="text-base font-semibold text-slate-900">Daftar Bank Soal Tersimpan</h3>
+                            <span id="saved-banks-count" class="text-xs bg-slate-100 font-semibold text-slate-600 px-2.5 py-1 rounded-full">0 File</span>
+                        </div>
+                        <div id="saved-banks-list" class="space-y-3 max-h-[320px] overflow-y-auto custom-scrollbar pr-1">
+                            <!-- Injected by JS -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Pre-Quiz Configuration (Right Column - 5 cols) -->
+                <div class="lg:col-span-5">
+                    <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm sticky top-24">
+                        <div class="flex items-center space-x-2 text-slate-900 mb-4 pb-3 border-b border-slate-100">
+                            <i data-lucide="sliders" class="w-5 h-5 text-brand-600"></i>
+                            <h3 class="font-bold text-base">Pengaturan Pre-Kuis</h3>
+                        </div>
+
+                        <div id="config-bank-summary" class="mb-5 p-3.5 bg-brand-50/60 rounded-xl border border-brand-100">
+                            <p class="text-xs text-brand-700 font-medium uppercase tracking-wider mb-1">Bank Soal Terpilih</p>
+                            <p id="selected-bank-title" class="font-bold text-slate-900 text-sm truncate">Belum ada bank soal terpilih</p>
+                            <p id="selected-bank-meta" class="text-xs text-slate-500 mt-0.5">Silakan pilih atau unggah bank soal terlebih dahulu.</p>
+                        </div>
+
+                        <form id="pre-quiz-form" onsubmit="event.preventDefault(); app.startQuiz();" class="space-y-5">
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-700 mb-1.5 flex items-center justify-between">
+                                    <span>Jumlah Soal yang Dikeluarkan</span>
+                                    <span id="num-questions-badge" class="text-brand-600 font-bold text-sm">0 Soal</span>
+                                </label>
+                                <div class="flex items-center space-x-3 mb-2">
+                                    <input type="range" id="input-num-questions" min="1" max="500" value="10" 
+                                        class="flex-1 h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-brand-600"
+                                        oninput="app.onQuestionRangeChange(this.value)">
+                                    <input type="number" id="input-num-questions-direct" min="1" max="500" value="10"
+                                        class="w-20 text-xs font-bold text-center border border-slate-200 rounded-lg px-2 py-1.5 focus:ring-2 focus:ring-brand-500 focus:outline-none bg-slate-50"
+                                        oninput="app.onQuestionDirectChange(this.value)">
+                                </div>
+                                <div class="flex items-center justify-between text-[11px] text-slate-400">
+                                    <span>1 Soal</span>
+                                    <div class="flex space-x-1.5">
+                                        <button type="button" onclick="app.setQuickQuestions(10)" class="px-1.5 py-0.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded font-medium">10</button>
+                                        <button type="button" onclick="app.setQuickQuestions(50)" class="px-1.5 py-0.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded font-medium">50</button>
+                                        <button type="button" onclick="app.setQuickQuestions(100)" class="px-1.5 py-0.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded font-medium">100</button>
+                                        <button type="button" onclick="app.setQuickQuestions('max')" class="px-1.5 py-0.5 bg-brand-50 hover:bg-brand-100 text-brand-600 rounded font-bold">Max</button>
+                                    </div>
+                                    <span id="max-questions-label">Max: 0</span>
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-700 mb-1.5">Batas Waktu Latihan</label>
+                                <select id="input-timer" class="w-full text-sm border border-slate-200 rounded-xl px-3 py-2.5 focus:ring-2 focus:ring-brand-500 focus:outline-none bg-slate-50">
+                                    <option value="0">Tanpa Batas Waktu</option>
+                                    <option value="10">10 Menit</option>
+                                    <option value="15" selected>15 Menit</option>
+                                    <option value="30">30 Menit</option>
+                                    <option value="45">45 Menit</option>
+                                    <option value="60">1 Jam (60 Menit)</option>
+                                    <option value="90">1,5 Jam (90 Menit)</option>
+                                    <option value="120">2 Jam (120 Menit)</option>
+                                    <option value="150">2,5 Jam (150 Menit)</option>
+                                    <option value="180">3 Jam (180 Menit)</option>
+                                </select>
+                            </div>
+
+                            <div class="pt-2">
+                                <label class="relative flex items-center justify-between p-3 border border-slate-200 rounded-xl cursor-pointer hover:bg-slate-50">
+                                    <span class="flex items-center space-x-2">
+                                        <i data-lucide="shuffle" class="w-4 h-4 text-slate-500"></i>
+                                        <span class="text-xs font-medium text-slate-700">Acak Urutan Soal</span>
+                                    </span>
+                                    <input type="checkbox" id="input-randomize" checked class="w-4 h-4 text-brand-600 rounded border-slate-300 focus:ring-brand-500">
+                                </label>
+                            </div>
+
+                            <button type="submit" id="btn-start-quiz" disabled 
+                                class="w-full py-3 px-4 bg-slate-300 text-slate-500 font-bold text-sm rounded-xl transition-all shadow-md flex items-center justify-center space-x-2 cursor-not-allowed">
+                                <span>Mulai Latihan</span>
+                                <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- VIEW 2: INTERACTIVE QUIZ ENGINE -->
+        <section id="view-quiz" class="hidden space-y-6">
+            <!-- Top Status Bar -->
+            <div class="bg-white rounded-2xl p-4 border border-slate-200 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div class="flex items-center space-x-4">
+                    <button onclick="app.confirmExitQuiz()" class="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-colors">
+                        <i data-lucide="arrow-left" class="w-5 h-5"></i>
+                    </button>
+                    <div>
+                        <div class="flex items-center space-x-2">
+                            <span id="quiz-badge-category" class="text-[11px] font-bold text-brand-700 bg-brand-50 px-2.5 py-0.5 rounded-full border border-brand-200 uppercase tracking-wide">
+                                Verbal
+                            </span>
+                            <span id="quiz-badge-type" class="text-[11px] font-medium text-slate-500 bg-slate-100 px-2 py-0.5 rounded-full">
+                                Pilihan Ganda
+                            </span>
+                        </div>
+                        <h2 id="quiz-question-counter" class="text-sm font-bold text-slate-900 mt-1">Soal 1 dari 10</h2>
+                    </div>
+                </div>
+
+                <!-- Timer & Progress Bar -->
+                <div class="flex items-center space-x-6">
+                    <div id="timer-box" class="flex items-center space-x-2 bg-slate-900 text-amber-400 px-3.5 py-1.5 rounded-xl text-sm font-mono font-bold shadow-inner">
+                        <i data-lucide="clock" class="w-4 h-4 text-amber-400 animate-pulse"></i>
+                        <span id="quiz-timer-display">15:00</span>
+                    </div>
+
+                    <button onclick="app.submitQuizPrompt()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs px-4 py-2.5 rounded-xl shadow-sm transition-all flex items-center space-x-1.5">
+                        <i data-lucide="check-circle-2" class="w-4 h-4"></i>
+                        <span>Selesai & Kumpulkan</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Quiz Layout: Card + Sidebar Matrix -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+                <!-- Main Question Card (8 Cols) -->
+                <div class="lg:col-span-8 bg-white rounded-2xl border border-slate-200 shadow-sm p-6 sm:p-8 space-y-6">
+                    
+                    <!-- Question Text & Media -->
+                    <div class="space-y-3">
+                        <div class="text-xs font-semibold text-slate-400 uppercase tracking-wider flex items-center justify-between">
+                            <span>Pertanyaan</span>
+                            <button id="btn-flag-question" onclick="app.toggleFlagCurrent()" class="text-xs flex items-center space-x-1 text-slate-400 hover:text-amber-500 font-medium transition-colors">
+                                <i data-lucide="bookmark" class="w-4 h-4"></i>
+                                <span id="flag-text">Ragu-ragu</span>
+                            </button>
+                        </div>
+                        <div id="quiz-question-text" class="text-slate-800 font-medium text-base sm:text-lg leading-relaxed whitespace-pre-line">
+                            <!-- Question rendered here -->
+                        </div>
+                    </div>
+
+                    <hr class="border-slate-100">
+
+                    <!-- Dynamic Options Area -->
+                    <div id="quiz-options-container" class="space-y-3">
+                        <!-- Options Injected here -->
+                    </div>
+
+                    <!-- Navigation Footer Buttons -->
+                    <div class="pt-6 border-t border-slate-100 flex items-center justify-between">
+                        <button id="btn-prev-question" onclick="app.navQuestion(-1)" class="px-4 py-2.5 border border-slate-200 hover:bg-slate-50 text-slate-700 font-semibold text-xs rounded-xl flex items-center space-x-2 transition-colors disabled:opacity-40 disabled:cursor-not-allowed">
+                            <i data-lucide="chevron-left" class="w-4 h-4"></i>
+                            <span>Sebelumnya</span>
+                        </button>
+
+                        <button id="btn-next-question" onclick="app.navQuestion(1)" class="px-5 py-2.5 bg-brand-600 hover:bg-brand-700 text-white font-semibold text-xs rounded-xl flex items-center space-x-2 shadow-sm transition-colors">
+                            <span>Selanjutnya</span>
+                            <i data-lucide="chevron-right" class="w-4 h-4"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Right Question Matrix Sidebar (4 Cols) -->
+                <div class="lg:col-span-4 bg-white rounded-2xl border border-slate-200 shadow-sm p-5 space-y-4">
+                    <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+                        <h3 class="font-bold text-sm text-slate-900 flex items-center space-x-2">
+                            <i data-lucide="grid" class="w-4 h-4 text-brand-600"></i>
+                            <span>Navigasi Soal</span>
+                        </h3>
+                        <span id="matrix-progress-text" class="text-xs text-slate-500 font-medium">0/10 Terjawab</span>
+                    </div>
+
+                    <!-- Legend -->
+                    <div class="grid grid-cols-3 gap-2 text-[11px] text-slate-600">
+                        <div class="flex items-center space-x-1.5">
+                            <div class="w-3 h-3 rounded bg-emerald-500"></div>
+                            <span>Terjawab</span>
+                        </div>
+                        <div class="flex items-center space-x-1.5">
+                            <div class="w-3 h-3 rounded bg-amber-400"></div>
+                            <span>Ragu-ragu</span>
+                        </div>
+                        <div class="flex items-center space-x-1.5">
+                            <div class="w-3 h-3 rounded bg-slate-100 border border-slate-300"></div>
+                            <span>Kosong</span>
+                        </div>
+                    </div>
+
+                    <!-- Number Grid -->
+                    <div id="quiz-navigation-grid" class="grid grid-cols-5 gap-2 max-h-[300px] overflow-y-auto custom-scrollbar pt-2 pr-1">
+                        <!-- Grid buttons injected here -->
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- VIEW 3: QUIZ RESULTS & ANALYTICS -->
+        <section id="view-result" class="hidden space-y-8">
+            <!-- Summary Banner Header -->
+            <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 sm:p-8">
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-6 pb-6 border-b border-slate-100">
+                    <div>
+                        <span id="result-status-badge" class="inline-flex items-center space-x-1 text-xs font-bold px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 mb-2">
+                            <i data-lucide="award" class="w-3.5 h-3.5"></i>
+                            <span>Evaluasi Rubrik TKA Selesai</span>
+                        </span>
+                        <h2 class="text-2xl font-extrabold text-slate-900">Hasil & Analisis Penilaian TKA</h2>
+                        <p id="result-bank-title" class="text-xs text-slate-500 mt-1">Bank Soal: -</p>
+                    </div>
+
+                    <div class="flex items-center space-x-3">
+                        <button onclick="app.showDashboard()" class="px-4 py-2.5 border border-slate-200 hover:bg-slate-50 text-slate-700 font-semibold text-xs rounded-xl transition-colors">
+                            Kembali ke Utama
+                        </button>
+                        <button onclick="app.startQuiz()" class="px-4 py-2.5 bg-brand-600 hover:bg-brand-700 text-white font-semibold text-xs rounded-xl shadow-sm transition-colors flex items-center space-x-1.5">
+                            <i data-lucide="rotate-ccw" class="w-4 h-4"></i>
+                            <span>Coba Lagi</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Stats Grid with Detailed TKA Rubric -->
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6">
+                    <div class="bg-indigo-50/70 p-4 rounded-xl border border-indigo-100 text-center">
+                        <p class="text-xs font-semibold text-brand-700">Skor Akhir TKA</p>
+                        <p id="res-stat-score" class="text-3xl font-extrabold text-brand-600 mt-1">0.00</p>
+                        <p id="res-stat-raw" class="text-[11px] text-slate-500 mt-0.5">Poin Mentah: 0.0 / 0.0</p>
+                    </div>
+                    <div class="bg-emerald-50/70 p-4 rounded-xl border border-emerald-100 text-center">
+                        <p class="text-xs font-semibold text-emerald-700">Sempurna (100%)</p>
+                        <p id="res-stat-perfect" class="text-3xl font-extrabold text-emerald-600 mt-1">0</p>
+                        <p id="res-stat-perfect-pct" class="text-[11px] text-emerald-600/80 mt-0.5">Jawaban Tepat Utuh</p>
+                    </div>
+                    <div class="bg-amber-50/70 p-4 rounded-xl border border-amber-100 text-center">
+                        <p class="text-xs font-semibold text-amber-700">Skor Parsial</p>
+                        <p id="res-stat-partial" class="text-3xl font-extrabold text-amber-600 mt-1">0</p>
+                        <p class="text-[11px] text-amber-600/80 mt-0.5">Kredit Sebagian</p>
+                    </div>
+                    <div class="bg-rose-50/70 p-4 rounded-xl border border-rose-100 text-center">
+                        <p class="text-xs font-semibold text-rose-700">Salah / Kosong</p>
+                        <p id="res-stat-zero" class="text-3xl font-extrabold text-rose-600 mt-1">0</p>
+                        <p id="res-stat-time" class="text-[11px] text-slate-500 mt-0.5">Durasi: 00:00</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Analysis & Recommendation Grid -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                <!-- Category Accuracy Breakdown (6 cols) -->
+                <div class="lg:col-span-6 bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
+                    <h3 class="font-bold text-base text-slate-900 mb-4 flex items-center space-x-2">
+                        <i data-lucide="bar-chart-2" class="w-5 h-5 text-brand-600"></i>
+                        <span>Akurasi Poin Per Kategori TKA</span>
+                    </h3>
+                    <div id="result-category-breakdown" class="space-y-4">
+                        <!-- Category Progress Bars Injected Here -->
+                    </div>
+                </div>
+
+                <!-- Learning Recommendations (6 cols) -->
+                <div class="lg:col-span-6 bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
+                    <h3 class="font-bold text-base text-slate-900 mb-4 flex items-center space-x-2">
+                        <i data-lucide="lightbulb" class="w-5 h-5 text-amber-500"></i>
+                        <span>Saran Belajar Berbasis Rubrik</span>
+                    </h3>
+                    <div id="result-learning-recommendation" class="space-y-3">
+                        <!-- Recommendation Cards Injected Here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Detailed Answer Key & Discussion (Pembahasan) -->
+            <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 sm:p-8 space-y-6">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-100">
+                    <h3 class="font-bold text-lg text-slate-900 flex items-center space-x-2">
+                        <i data-lucide="file-check" class="w-5 h-5 text-brand-600"></i>
+                        <span>Pembahasan Detail & Pembobotan Skor</span>
+                    </h3>
+                    <!-- Filter Buttons with Rubric Categories -->
+                    <div id="review-filter-buttons" class="flex flex-wrap items-center gap-1.5 text-xs">
+                        <button onclick="app.filterReview('all')" class="px-3 py-1.5 rounded-lg bg-slate-900 text-white font-medium filter-btn" data-filter="all">Semua</button>
+                        <button onclick="app.filterReview('perfect')" class="px-3 py-1.5 rounded-lg bg-slate-100 text-slate-600 font-medium hover:bg-slate-200 filter-btn" data-filter="perfect">Sempurna</button>
+                        <button onclick="app.filterReview('partial')" class="px-3 py-1.5 rounded-lg bg-slate-100 text-slate-600 font-medium hover:bg-slate-200 filter-btn" data-filter="partial">Parsial</button>
+                        <button onclick="app.filterReview('zero')" class="px-3 py-1.5 rounded-lg bg-slate-100 text-slate-600 font-medium hover:bg-slate-200 filter-btn" data-filter="zero">Salah Total</button>
+                    </div>
+                </div>
+
+                <div id="review-list-container" class="space-y-6">
+                    <!-- Detailed Items Injected Here -->
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        /**
+         * TKA Master - Single Page Application Core Engine
+         */
+
+        const DEMO_TKA_BANK = {
+            id: 'demo-tka-bank-2026',
+            title: 'Bank Soal Simulasi TKA 2026 (Demo)',
+            description: 'Soal Tes Kemampuan Akademik mencakup Verbal, Kuantitatif, dan Penalaran Logis.',
+            updatedAt: new Date().toISOString(),
+            total_questions: 6,
+            questions: [
+                {
+                    id: "tka-01",
+                    category: "Verbal",
+                    sub_category: "Analogi Kata",
+                    type: "single",
+                    question: "Pilihlah pasangan kata yang memiliki hubungan paling setara dengan analogi berikut:\n\nHUTAN : POHON",
+                    options: [
+                        "Papan : Kayu",
+                        "Armada : Kapal",
+                        "Gedung : Batubara",
+                        "Masyarakat : Individu",
+                        "Roda : Mobil"
+                    ],
+                    answer: 1,
+                    explanation: "Hutan merupakan kumpulan/kesatuan dari banyak Pohon. Hubungan yang setara secara hierarki dan makna adalah Armada yang merupakan kumpulan dari banyak Kapal."
+                },
+                {
+                    id: "tka-02",
+                    category: "Kuantitatif",
+                    sub_category: "Aljabar & Sistem Persamaan",
+                    type: "single",
+                    question: "Jika diketahui persamaan x + 2y = 10 dan 3x - y = 9, berapakah nilai dari perkalian (x × y)?",
+                    options: [
+                        "6",
+                        "8",
+                        "12",
+                        "15",
+                        "18"
+                    ],
+                    answer: 2,
+                    explanation: "Langkah penyelesaian:\n1. Dari persamaan (1): y = (10 - x) / 2.\n2. Substitusi y ke pers (2): 3x - ((10 - x) / 2) = 9  =>  6x - 10 + x = 18  =>  7x = 28  =>  x = 4.\n3. Substitusi x = 4 ke pers (1): 4 + 2y = 10 => 2y = 6 => y = 3.\n4. Maka x × y = 4 × 3 = 12."
+                },
+                {
+                    id: "tka-03",
+                    category: "Penalaran",
+                    sub_category: "Penalaran Analitis & Teori Bilangan",
+                    type: "multiple",
+                    question: "Manakah di antara pernyataan berikut yang BENAR mengenai sifat bilangan prima lebih besar dari 2? (Pilih lebih dari satu jika sesuai)",
+                    options: [
+                        "Selalu bernilai ganjil",
+                        "Hanya memiliki tepat dua faktor pembagi (1 dan dirinya sendiri)",
+                        "Penjumlahan dua bilangan prima (>2) selalu bernilai genap",
+                        "Selalu diakhiri digit 1, 3, 7, atau 9 pada basis desimal",
+                        "Dapat dibagi dengan bilangan genap selain 2"
+                    ],
+                    answer: [0, 1, 2, 3],
+                    explanation: "Semua bilangan prima lebih besar dari 2 selalu ganjil, hanya memiliki 2 faktor, jumlah dua bilangan ganjil pasti genap, dan digit terakhirnya hanya bisa 1, 3, 7, atau 9."
+                },
+                {
+                    id: "tka-04",
+                    category: "Verbal",
+                    sub_category: "Metodologi & Penalaran Bahasa",
+                    type: "true_false",
+                    question: "Tentukan apakah setiap pernyataan mengenai logika penelitian ilmiah berikut BENAR atau SALAH:",
+                    statements: [
+                        { text: "Semua hipotesis ilmiah yang dapat diuji secara empiris selalu bernilai benar secara mutlak.", answer: false },
+                        { text: "Korelasi statistik yang tinggi antara dua variabel tidak selalu menunjukkan hubungan kausalitas (sebab-akibat).", answer: true },
+                        { text: "Metode induktif mengambil kesimpulan khusus berdasarkan generalisasi fakta umum.", answer: false },
+                        { text: "Pengujian ulang (replikasi) penting dilakukan untuk memastikan reliabilitas temuan ilmiah.", answer: true }
+                    ],
+                    explanation: "1) Hipotesis bisa terbukti salah (falsifikasi). 2) Korelasi tidak sama dengan kausalitas. 3) Induksi dari fakta khusus ke umum (deduksi dari umum ke khusus). 4) Replikasi menjamin reliabilitas data."
+                },
+                {
+                    id: "tka-05",
+                    category: "Kuantitatif",
+                    sub_category: "Aritmatika Sosial",
+                    type: "single",
+                    question: "Seorang pedagang membeli barang seharga Rp 200.000,00 dan mendapat diskon 20%. Jika pedagang tersebut ingin memperoleh keuntungan 25% dari harga setelah diskon, berapa harga jual barang tersebut?",
+                    options: [
+                        "Rp 180.000,00",
+                        "Rp 200.000,00",
+                        "Rp 210.000,00",
+                        "Rp 220.000,00",
+                        "Rp 250.000,00"
+                    ],
+                    answer: 1,
+                    explanation: "Harga setelah diskon = Rp 200.000 × (1 - 0,20) = Rp 160.000.\nHarga jual = Rp 160.000 × (1 + 0,25) = Rp 160.000 × 1,25 = Rp 200.000,00."
+                },
+                {
+                    id: "tka-06",
+                    category: "Penalaran",
+                    sub_category: "Penalaran Silogisme Logis",
+                    type: "true_false",
+                    question: "Diketahui premis:\n1. Semua peneliti yang cermat selalu mencatat hasil eksperimen.\n2. Sebagian mahasiswa sains adalah peneliti yang cermat.\n\nEvaluasi kebenaran klaim-klaim berikut:",
+                    statements: [
+                        { text: "Sebagian mahasiswa sains mencatat hasil eksperimen.", answer: true },
+                        { text: "Semua mahasiswa sains pasti peneliti yang cermat.", answer: false },
+                        { text: "Seseorang yang tidak mencatat hasil eksperimen dipastikan bukan peneliti yang cermat.", answer: true },
+                        { text: "Semua orang yang mencatat hasil eksperimen adalah mahasiswa sains.", answer: false }
+                    ],
+                    explanation: "Silogisme standar: Sebagian mahasiswa sains (yang merupakan peneliti cermat) pasti mencatat eksperimen. Pernyataan 3 adalah kontraposisi sah dari premis 1."
+                }
+            ]
+        };
+
+        class TKAMasterApp {
+            constructor() {
+                this.banks = [];
+                this.activeBank = null;
+                this.quizConfig = {
+                    numQuestions: 10,
+                    timerMinutes: 15,
+                    randomize: true
+                };
+                this.quizState = {
+                    questions: [],
+                    currentIndex: 0,
+                    userAnswers: {},
+                    flagged: {},
+                    startTime: null,
+                    endTime: null,
+                    timerInterval: null,
+                    remainingSeconds: 0
+                };
+
+                this.init();
+            }
+
+            init() {
+                this.loadBanksFromStorage();
+                this.setupDropzone();
+                this.renderSavedBanksList();
+
+                if (this.banks.length === 0) {
+                    this.saveBankToStorage(DEMO_TKA_BANK, false);
+                }
+
+                if (this.banks.length > 0) {
+                    this.selectBank(this.banks[0].id);
+                }
+
+                this.showDashboard();
+                lucide.createIcons();
+            }
+
+            loadBanksFromStorage() {
+                try {
+                    const data = localStorage.getItem('tka_master_banks');
+                    this.banks = data ? JSON.parse(data) : [];
+                } catch (e) {
+                    console.error("Gagal membaca localStorage:", e);
+                    this.banks = [];
+                }
+            }
+
+            saveBankToStorage(bankData, showToastNotice = true) {
+                if (!bankData.id || !bankData.title || !Array.isArray(bankData.questions)) {
+                    this.showToast('Format JSON tidak sesuai skema TKA!', 'error');
+                    return false;
+                }
+
+                const existingIdx = this.banks.findIndex(b => b.id === bankData.id);
+                if (existingIdx >= 0) {
+                    this.banks[existingIdx] = bankData;
+                } else {
+                    this.banks.unshift(bankData);
+                }
+
+                try {
+                    localStorage.setItem('tka_master_banks', JSON.stringify(this.banks));
+                    this.renderSavedBanksList();
+                    this.selectBank(bankData.id);
+                    if (showToastNotice) {
+                        this.showToast(`Bank soal "${bankData.title}" berhasil disimpan.`, 'success');
+                    }
+                    return true;
+                } catch (e) {
+                    this.showToast('Penyimpanan lokal penuh!', 'error');
+                    return false;
+                }
+            }
+
+            deleteBank(bankId, event) {
+                if (event) event.stopPropagation();
+
+                this.showModal({
+                    title: 'Hapus Bank Soal',
+                    message: 'Apakah Anda yakin ingin menghapus bank soal ini dari daftar tersimpan?',
+                    icon: 'trash-2',
+                    iconBg: 'bg-rose-100 text-rose-600',
+                    confirmText: 'Hapus',
+                    onConfirm: () => {
+                        this.banks = this.banks.filter(b => b.id !== bankId);
+                        localStorage.setItem('tka_master_banks', JSON.stringify(this.banks));
+                        this.renderSavedBanksList();
+
+                        if (this.activeBank && this.activeBank.id === bankId) {
+                            if (this.banks.length > 0) {
+                                this.selectBank(this.banks[0].id);
+                            } else {
+                                this.activeBank = null;
+                                this.updateConfigSummary();
+                            }
+                        }
+                        this.showToast('Bank soal berhasil dihapus.', 'info');
+                    }
+                });
+            }
+
+            selectBank(bankId) {
+                const bank = this.banks.find(b => b.id === bankId);
+                if (!bank) return;
+
+                this.activeBank = bank;
+                
+                const badgeName = document.getElementById('header-bank-name');
+                const badgeContainer = document.getElementById('header-bank-badge');
+                if (badgeName && badgeContainer) {
+                    badgeName.textContent = bank.title;
+                    badgeContainer.classList.remove('hidden');
+                }
+
+                this.updateConfigSummary();
+                this.renderSavedBanksList();
+            }
+
+            loadDemoData() {
+                this.saveBankToStorage(DEMO_TKA_BANK, true);
+            }
+
+            setupDropzone() {
+                const dropzone = document.getElementById('dropzone');
+                const fileInput = document.getElementById('json-file-input');
+
+                dropzone.addEventListener('click', () => fileInput.click());
+
+                dropzone.addEventListener('dragover', (e) => {
+                    e.preventDefault();
+                    dropzone.classList.add('border-brand-500', 'bg-brand-50/50');
+                });
+
+                dropzone.addEventListener('dragleave', () => {
+                    dropzone.classList.remove('border-brand-500', 'bg-brand-50/50');
+                });
+
+                dropzone.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    dropzone.classList.remove('border-brand-500', 'bg-brand-50/50');
+                    if (e.dataTransfer.files.length > 0) {
+                        this.handleFileSelect(e.dataTransfer.files[0]);
+                    }
+                });
+
+                fileInput.addEventListener('change', (e) => {
+                    if (e.target.files.length > 0) {
+                        this.handleFileSelect(e.target.files[0]);
+                    }
+                });
+            }
+
+            handleFileSelect(file) {
+                if (!file.name.endsWith('.json')) {
+                    this.showToast('File harus berformat .json', 'error');
+                    return;
+                }
+
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    try {
+                        const json = JSON.parse(e.target.result);
+                        if (!json.id) json.id = 'bank-' + Date.now();
+                        if (!json.updatedAt) json.updatedAt = new Date().toISOString();
+
+                        const success = this.saveBankToStorage(json, true);
+                        if (success) {
+                            document.getElementById('json-file-input').value = '';
+                        }
+                    } catch (err) {
+                        this.showToast('Gagal memproses file JSON. Pastikan sintaks JSON valid.', 'error');
+                    }
+                };
+                reader.readAsText(file);
+            }
+
+            renderSavedBanksList() {
+                const container = document.getElementById('saved-banks-list');
+                const countBadge = document.getElementById('saved-banks-count');
+                
+                countBadge.textContent = `${this.banks.length} File`;
+
+                if (this.banks.length === 0) {
+                    container.innerHTML = `
+                        <div class="text-center py-8 border-2 border-dashed border-slate-100 rounded-xl">
+                            <i data-lucide="folder-open" class="w-8 h-8 text-slate-300 mx-auto mb-2"></i>
+                            <p class="text-xs text-slate-400 font-medium">Belum ada bank soal tersimpan.</p>
+                        </div>
+                    `;
+                    lucide.createIcons();
+                    return;
+                }
+
+                container.innerHTML = this.banks.map(bank => {
+                    const isSelected = this.activeBank && this.activeBank.id === bank.id;
+                    const qCount = bank.questions ? bank.questions.length : 0;
+                    return `
+                        <div onclick="app.selectBank('${bank.id}')" 
+                            class="p-3.5 rounded-xl border transition-all cursor-pointer flex items-center justify-between ${isSelected ? 'border-brand-500 bg-brand-50/40 shadow-sm' : 'border-slate-200 hover:border-slate-300 bg-white'}">
+                            <div class="flex items-center space-x-3 overflow-hidden">
+                                <div class="w-9 h-9 rounded-lg ${isSelected ? 'bg-brand-600 text-white' : 'bg-slate-100 text-slate-500'} flex items-center justify-center flex-shrink-0 font-bold text-xs">
+                                    <i data-lucide="file-text" class="w-4 h-4"></i>
+                                </div>
+                                <div class="overflow-hidden">
+                                    <h4 class="font-bold text-xs text-slate-900 truncate">${this.escapeHtml(bank.title)}</h4>
+                                    <p class="text-[11px] text-slate-500 truncate">${qCount} Soal • ${bank.description || 'Tidak ada deskripsi'}</p>
+                                </div>
+                            </div>
+
+                            <div class="flex items-center space-x-1 pl-2">
+                                <button onclick="app.downloadBankJson('${bank.id}', event)" title="Unduh JSON" class="p-1.5 text-slate-400 hover:text-brand-600 hover:bg-slate-100 rounded-lg transition-colors">
+                                    <i data-lucide="download" class="w-4 h-4"></i>
+                                </button>
+                                <button onclick="app.deleteBank('${bank.id}', event)" title="Hapus" class="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-slate-100 rounded-lg transition-colors">
+                                    <i data-lucide="trash-2" class="w-4 h-4"></i>
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+
+                lucide.createIcons();
+            }
+
+            updateConfigSummary() {
+                const titleEl = document.getElementById('selected-bank-title');
+                const metaEl = document.getElementById('selected-bank-meta');
+                const numRange = document.getElementById('input-num-questions');
+                const numDirect = document.getElementById('input-num-questions-direct');
+                const numBadge = document.getElementById('num-questions-badge');
+                const maxLabel = document.getElementById('max-questions-label');
+                const btnStart = document.getElementById('btn-start-quiz');
+
+                if (!this.activeBank) {
+                    titleEl.textContent = "Belum ada bank soal terpilih";
+                    metaEl.textContent = "Silakan pilih atau unggah bank soal.";
+                    btnStart.disabled = true;
+                    btnStart.className = "w-full py-3 px-4 bg-slate-200 text-slate-400 font-bold text-sm rounded-xl cursor-not-allowed flex items-center justify-center space-x-2";
+                    return;
+                }
+
+                const totalAvail = this.activeBank.questions.length;
+                titleEl.textContent = this.activeBank.title;
+                metaEl.textContent = `${totalAvail} Total Soal Tersedia dalam File`;
+
+                numRange.max = totalAvail;
+                numDirect.max = totalAvail;
+
+                let val = parseInt(numDirect.value) || 1;
+                if (val > totalAvail) val = totalAvail;
+                if (val < 1) val = 1;
+
+                numRange.value = val;
+                numDirect.value = val;
+                
+                numBadge.textContent = `${val} Soal`;
+                maxLabel.textContent = `Max: ${totalAvail}`;
+
+                btnStart.disabled = false;
+                btnStart.className = "w-full py-3 px-4 bg-brand-600 hover:bg-brand-700 text-white font-bold text-sm rounded-xl shadow-md transition-all flex items-center justify-center space-x-2 cursor-pointer";
+            }
+
+            onQuestionRangeChange(val) {
+                document.getElementById('input-num-questions-direct').value = val;
+                this.updateConfigSummary();
+            }
+
+            onQuestionDirectChange(val) {
+                document.getElementById('input-num-questions').value = val;
+                this.updateConfigSummary();
+            }
+
+            setQuickQuestions(count) {
+                if (!this.activeBank) return;
+                const totalAvail = this.activeBank.questions.length;
+                let target = count === 'max' ? totalAvail : Math.min(count, totalAvail);
+                document.getElementById('input-num-questions').value = target;
+                document.getElementById('input-num-questions-direct').value = target;
+                this.updateConfigSummary();
+            }
+
+            downloadBankJson(bankId, event) {
+                if (event) event.stopPropagation();
+                const bank = this.banks.find(b => b.id === bankId);
+                if (!bank) return;
+
+                const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(bank, null, 2));
+                const downloadAnchor = document.createElement('a');
+                downloadAnchor.setAttribute("href", dataStr);
+                downloadAnchor.setAttribute("download", `${bank.title.toLowerCase().replace(/[^a-z0-9]/g, '_')}.json`);
+                document.body.appendChild(downloadAnchor);
+                downloadAnchor.click();
+                downloadAnchor.remove();
+            }
+
+            downloadTemplateSchema() {
+                const template = DEMO_TKA_BANK;
+                const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(template, null, 2));
+                const downloadAnchor = document.createElement('a');
+                downloadAnchor.setAttribute("href", dataStr);
+                downloadAnchor.setAttribute("download", "sample_tka.json");
+                document.body.appendChild(downloadAnchor);
+                downloadAnchor.click();
+                downloadAnchor.remove();
+            }
+
+            startQuiz() {
+                if (!this.activeBank || this.activeBank.questions.length === 0) {
+                    this.showToast('Pilih bank soal yang valid terlebih dahulu.', 'error');
+                    return;
+                }
+
+                const numQuestions = parseInt(document.getElementById('input-num-questions-direct').value) || parseInt(document.getElementById('input-num-questions').value);
+                const timerMinutes = parseInt(document.getElementById('input-timer').value);
+                const randomize = document.getElementById('input-randomize').checked;
+
+                let chosenQuestions = [...this.activeBank.questions];
+                if (randomize) {
+                    chosenQuestions.sort(() => Math.random() - 0.5);
+                }
+                chosenQuestions = chosenQuestions.slice(0, numQuestions);
+
+                this.quizState = {
+                    questions: chosenQuestions,
+                    currentIndex: 0,
+                    userAnswers: {},
+                    flagged: {},
+                    startTime: new Date(),
+                    endTime: null,
+                    remainingSeconds: timerMinutes * 60,
+                    timerInterval: null
+                };
+
+                this.quizState.questions.forEach(q => {
+                    if (q.type === 'multiple') {
+                        this.quizState.userAnswers[q.id] = [];
+                    } else if (q.type === 'true_false') {
+                        this.quizState.userAnswers[q.id] = {};
+                    }
+                });
+
+                this.startTimer(timerMinutes);
+                this.showQuizView();
+                this.renderQuestion();
+                this.renderNavigationMatrix();
+            }
+
+            startTimer(minutes) {
+                if (this.quizState.timerInterval) clearInterval(this.quizState.timerInterval);
+
+                const timerBox = document.getElementById('timer-box');
+                const timerDisplay = document.getElementById('quiz-timer-display');
+
+                if (minutes <= 0) {
+                    timerBox.classList.add('hidden');
+                    return;
+                }
+
+                timerBox.classList.remove('hidden');
+                let totalSecs = minutes * 60;
+
+                const updateDisplay = () => {
+                    const h = Math.floor(totalSecs / 3600);
+                    const m = Math.floor((totalSecs % 3600) / 60);
+                    const s = totalSecs % 60;
+
+                    if (h > 0) {
+                        timerDisplay.textContent = `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+                    } else {
+                        timerDisplay.textContent = `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+                    }
+                    
+                    if (totalSecs <= 60) {
+                        timerBox.className = "flex items-center space-x-2 bg-rose-600 text-white px-3.5 py-1.5 rounded-xl text-sm font-mono font-bold shadow-inner animate-pulse";
+                    } else {
+                        timerBox.className = "flex items-center space-x-2 bg-slate-900 text-amber-400 px-3.5 py-1.5 rounded-xl text-sm font-mono font-bold shadow-inner";
+                    }
+                };
+
+                updateDisplay();
+
+                this.quizState.timerInterval = setInterval(() => {
+                    totalSecs--;
+                    this.quizState.remainingSeconds = totalSecs;
+
+                    if (totalSecs <= 0) {
+                        clearInterval(this.quizState.timerInterval);
+                        this.showToast('Waktu pengerjaan telah habis! Kuis otomatis dikumpulkan.', 'info');
+                        this.finishQuiz();
+                    } else {
+                        updateDisplay();
+                    }
+                }, 1000);
+            }
+
+            renderQuestion() {
+                const q = this.quizState.questions[this.quizState.currentIndex];
+                if (!q) return;
+
+                document.getElementById('quiz-badge-category').textContent = q.category || 'TKA';
+                
+                let typeText = 'Pilihan Ganda';
+                if (q.type === 'multiple') typeText = 'Pilihan Ganda Kompleks (Centang)';
+                if (q.type === 'true_false') typeText = 'Benar / Salah';
+                document.getElementById('quiz-badge-type').textContent = typeText;
+
+                document.getElementById('quiz-question-counter').textContent = `Soal ${this.quizState.currentIndex + 1} dari ${this.quizState.questions.length}`;
+
+                const isFlagged = !!this.quizState.flagged[q.id];
+                const flagBtn = document.getElementById('btn-flag-question');
+                if (isFlagged) {
+                    flagBtn.className = "text-xs flex items-center space-x-1 text-amber-500 font-bold transition-colors";
+                    document.getElementById('flag-text').textContent = "Ragu-ragu (Aktif)";
+                } else {
+                    flagBtn.className = "text-xs flex items-center space-x-1 text-slate-400 hover:text-amber-500 font-medium transition-colors";
+                    document.getElementById('flag-text').textContent = "Ragu-ragu";
+                }
+
+                document.getElementById('quiz-question-text').textContent = q.question;
+
+                const container = document.getElementById('quiz-options-container');
+                container.innerHTML = '';
+
+                if (q.type === 'single') {
+                    this.renderSingleOptions(q, container);
+                } else if (q.type === 'multiple') {
+                    this.renderMultipleOptions(q, container);
+                } else if (q.type === 'true_false') {
+                    this.renderTrueFalseOptions(q, container);
+                }
+
+                document.getElementById('btn-prev-question').disabled = (this.quizState.currentIndex === 0);
+                const nextBtn = document.getElementById('btn-next-question');
+                if (this.quizState.currentIndex === this.quizState.questions.length - 1) {
+                    nextBtn.innerHTML = `<span>Selesai</span> <i data-lucide="check" class="w-4 h-4"></i>`;
+                } else {
+                    nextBtn.innerHTML = `<span>Selanjutnya</span> <i data-lucide="chevron-right" class="w-4 h-4"></i>`;
+                }
+
+                lucide.createIcons();
+            }
+
+            renderSingleOptions(q, container) {
+                const currentAns = this.quizState.userAnswers[q.id];
+
+                q.options.forEach((opt, idx) => {
+                    const isSelected = (currentAns === idx);
+                    const optionCard = document.createElement('div');
+                    optionCard.className = `p-4 rounded-xl border transition-all cursor-pointer flex items-center space-x-3.5 ${
+                        isSelected 
+                            ? 'border-brand-600 bg-brand-50/60 text-brand-900 shadow-sm ring-1 ring-brand-600' 
+                            : 'border-slate-200 hover:border-slate-300 bg-white hover:bg-slate-50 text-slate-700'
+                    }`;
+                    optionCard.onclick = () => {
+                        this.quizState.userAnswers[q.id] = idx;
+                        this.renderQuestion();
+                        this.renderNavigationMatrix();
+                    };
+
+                    const optionLetter = String.fromCharCode(65 + idx);
+                    optionCard.innerHTML = `
+                        <div class="w-7 h-7 rounded-lg ${isSelected ? 'bg-brand-600 text-white' : 'bg-slate-100 text-slate-600'} font-bold text-xs flex items-center justify-center flex-shrink-0">
+                            ${optionLetter}
+                        </div>
+                        <div class="text-sm font-medium leading-normal flex-1">${this.escapeHtml(opt)}</div>
+                    `;
+                    container.appendChild(optionCard);
+                });
+            }
+
+            renderMultipleOptions(q, container) {
+                const currentArr = this.quizState.userAnswers[q.id] || [];
+
+                const helperNote = document.createElement('p');
+                helperNote.className = "text-xs text-slate-500 italic mb-2";
+                helperNote.textContent = "* Pilih satu atau lebih opsi jawaban yang menurut Anda benar.";
+                container.appendChild(helperNote);
+
+                q.options.forEach((opt, idx) => {
+                    const isChecked = currentArr.includes(idx);
+                    const optionCard = document.createElement('div');
+                    optionCard.className = `p-4 rounded-xl border transition-all cursor-pointer flex items-center space-x-3.5 ${
+                        isChecked 
+                            ? 'border-brand-600 bg-brand-50/60 text-brand-900 shadow-sm' 
+                            : 'border-slate-200 hover:border-slate-300 bg-white hover:bg-slate-50 text-slate-700'
+                    }`;
+                    optionCard.onclick = () => {
+                        let newArr = [...currentArr];
+                        if (isChecked) {
+                            newArr = newArr.filter(i => i !== idx);
+                        } else {
+                            newArr.push(idx);
+                        }
+                        this.quizState.userAnswers[q.id] = newArr;
+                        this.renderQuestion();
+                        this.renderNavigationMatrix();
+                    };
+
+                    optionCard.innerHTML = `
+                        <div class="w-5 h-5 rounded border ${isChecked ? 'bg-brand-600 border-brand-600 text-white' : 'border-slate-300 bg-white'} flex items-center justify-center flex-shrink-0">
+                            ${isChecked ? '<i data-lucide="check" class="w-3.5 h-3.5"></i>' : ''}
+                        </div>
+                        <div class="text-sm font-medium leading-normal flex-1">${this.escapeHtml(opt)}</div>
+                    `;
+                    container.appendChild(optionCard);
+                });
+            }
+
+            renderTrueFalseOptions(q, container) {
+                const currentObj = this.quizState.userAnswers[q.id] || {};
+
+                const tableWrapper = document.createElement('div');
+                tableWrapper.className = "overflow-hidden border border-slate-200 rounded-xl bg-white shadow-sm";
+
+                let html = `
+                    <table class="w-full text-left text-xs sm:text-sm">
+                        <thead class="bg-slate-50 text-slate-600 font-bold border-b border-slate-200">
+                            <tr>
+                                <th class="p-3 sm:p-4">Pernyataan</th>
+                                <th class="p-3 sm:p-4 text-center w-24">Benar (✓)</th>
+                                <th class="p-3 sm:p-4 text-center w-24">Salah (✗)</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100">
+                `;
+
+                q.statements.forEach((stmt, idx) => {
+                    const ansValue = currentObj[idx];
+
+                    html += `
+                        <tr class="hover:bg-slate-50/60">
+                            <td class="p-3 sm:p-4 text-slate-800 font-medium leading-normal">${this.escapeHtml(stmt.text)}</td>
+                            <td class="p-3 sm:p-4 text-center">
+                                <button onclick="app.setTrueFalseAnswer('${q.id}', ${idx}, true)" 
+                                    class="w-10 h-10 rounded-xl transition-all inline-flex items-center justify-center ${
+                                        ansValue === true 
+                                            ? 'bg-emerald-600 text-white shadow-md ring-2 ring-emerald-600' 
+                                            : 'bg-slate-100 text-slate-400 hover:bg-emerald-100 hover:text-emerald-700'
+                                    }">
+                                    <i data-lucide="check" class="w-5 h-5"></i>
+                                </button>
+                            </td>
+                            <td class="p-3 sm:p-4 text-center">
+                                <button onclick="app.setTrueFalseAnswer('${q.id}', ${idx}, false)" 
+                                    class="w-10 h-10 rounded-xl transition-all inline-flex items-center justify-center ${
+                                        ansValue === false 
+                                            ? 'bg-rose-600 text-white shadow-md ring-2 ring-rose-600' 
+                                            : 'bg-slate-100 text-slate-400 hover:bg-rose-100 hover:text-rose-700'
+                                    }">
+                                    <i data-lucide="x" class="w-5 h-5"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    `;
+                });
+
+                html += `</tbody></table>`;
+                tableWrapper.innerHTML = html;
+                container.appendChild(tableWrapper);
+            }
+
+            setTrueFalseAnswer(qId, stmtIndex, val) {
+                if (!this.quizState.userAnswers[qId]) {
+                    this.quizState.userAnswers[qId] = {};
+                }
+                this.quizState.userAnswers[qId][stmtIndex] = val;
+                this.renderQuestion();
+                this.renderNavigationMatrix();
+            }
+
+            toggleFlagCurrent() {
+                const q = this.quizState.questions[this.quizState.currentIndex];
+                if (!q) return;
+
+                this.quizState.flagged[q.id] = !this.quizState.flagged[q.id];
+                this.renderQuestion();
+                this.renderNavigationMatrix();
+            }
+
+            navQuestion(delta) {
+                const newIdx = this.quizState.currentIndex + delta;
+                if (newIdx >= 0 && newIdx < this.quizState.questions.length) {
+                    this.quizState.currentIndex = newIdx;
+                    this.renderQuestion();
+                    this.renderNavigationMatrix();
+                } else if (newIdx >= this.quizState.questions.length) {
+                    this.submitQuizPrompt();
+                }
+            }
+
+            jumpToQuestion(index) {
+                this.quizState.currentIndex = index;
+                this.renderQuestion();
+                this.renderNavigationMatrix();
+            }
+
+            renderNavigationMatrix() {
+                const grid = document.getElementById('quiz-navigation-grid');
+                const progressText = document.getElementById('matrix-progress-text');
+                if (!grid || !progressText) return;
+
+                let answeredCount = 0;
+                grid.innerHTML = '';
+
+                this.quizState.questions.forEach((q, idx) => {
+                    const ans = this.quizState.userAnswers[q.id];
+                    const isFlagged = !!this.quizState.flagged[q.id];
+
+                    let isAnswered = false;
+                    if (q.type === 'single') {
+                        isAnswered = (ans !== undefined && ans !== null);
+                    } else if (q.type === 'multiple') {
+                        isAnswered = (Array.isArray(ans) && ans.length > 0);
+                    } else if (q.type === 'true_false') {
+                        const count = (ans && typeof ans === 'object') ? Object.keys(ans).length : 0;
+                        isAnswered = (count === q.statements.length);
+                    }
+
+                    if (isAnswered) answeredCount++;
+
+                    let btnClass = "bg-slate-100 text-slate-700 hover:bg-slate-200 border-slate-200";
+                    if (isAnswered) btnClass = "bg-emerald-500 text-white font-bold border-emerald-600";
+                    if (isFlagged) btnClass = "bg-amber-400 text-slate-900 font-bold border-amber-500";
+                    if (idx === this.quizState.currentIndex) {
+                        btnClass += " ring-2 ring-brand-600 ring-offset-2";
+                    }
+
+                    const btn = document.createElement('button');
+                    btn.className = `w-10 h-10 rounded-xl text-xs flex items-center justify-center font-semibold border transition-all ${btnClass}`;
+                    btn.textContent = idx + 1;
+                    btn.onclick = () => this.jumpToQuestion(idx);
+                    grid.appendChild(btn);
+                });
+
+                progressText.textContent = `${answeredCount}/${this.quizState.questions.length} Terjawab`;
+            }
+
+            submitQuizPrompt() {
+                const totalQuestions = this.quizState.questions.length;
+                let answeredCount = 0;
+
+                this.quizState.questions.forEach(q => {
+                    const ans = this.quizState.userAnswers[q.id];
+                    if (q.type === 'single') {
+                        if (ans !== undefined && ans !== null) answeredCount++;
+                    } else if (q.type === 'multiple') {
+                        if (Array.isArray(ans) && ans.length > 0) answeredCount++;
+                    } else if (q.type === 'true_false') {
+                        const count = (ans && typeof ans === 'object') ? Object.keys(ans).length : 0;
+                        if (count > 0) answeredCount++;
+                    }
+                });
+
+                const unanswered = totalQuestions - answeredCount;
+                let msg = `Apakah Anda yakin ingin menyelesaikan kuis?`;
+                if (unanswered > 0) {
+                    msg = `Masih ada ${unanswered} soal yang belum dijawab penuh. Apakah Anda yakin ingin mengumpulkan kuis sekarang?`;
+                }
+
+                this.showModal({
+                    title: 'Kumpulkan Jawaban',
+                    message: msg,
+                    icon: 'check-circle-2',
+                    iconBg: 'bg-emerald-100 text-emerald-600',
+                    confirmText: 'Selesai & Kumpulkan',
+                    onConfirm: () => this.finishQuiz()
+                });
+            }
+
+            confirmExitQuiz() {
+                this.showModal({
+                    title: 'Keluar Kuis',
+                    message: 'Progres kuis Anda saat ini tidak akan disimpan. Yakin ingin kembali ke menu utama?',
+                    icon: 'alert-triangle',
+                    iconBg: 'bg-rose-100 text-rose-600',
+                    confirmText: 'Ya, Keluar',
+                    onConfirm: () => {
+                        if (this.quizState.timerInterval) clearInterval(this.quizState.timerInterval);
+                        this.showDashboard();
+                    }
+                });
+            }
+
+            calculateQuestionScore(q, userAns) {
+                if (userAns === undefined || userAns === null) {
+                    return { rawEarned: 0, rawMax: 1.0, ratio: 0, status: 'unanswered' };
+                }
+
+                if (q.type === 'single') {
+                    const isCorrect = (userAns === q.answer);
+                    return {
+                        rawEarned: isCorrect ? 1.0 : 0.0,
+                        rawMax: 1.0,
+                        ratio: isCorrect ? 1.0 : 0.0,
+                        status: isCorrect ? 'perfect' : 'zero'
+                    };
+                } else if (q.type === 'multiple') {
+                    const optionsCount = q.options ? q.options.length : 1;
+                    if (!Array.isArray(userAns) || userAns.length === 0) {
+                        return { rawEarned: 0, rawMax: 1.0, ratio: 0, status: 'unanswered' };
+                    }
+                    
+                    let correctDecisions = 0;
+                    q.options.forEach((_, idx) => {
+                        const shouldBeChecked = Array.isArray(q.answer) && q.answer.includes(idx);
+                        const isChecked = userAns.includes(idx);
+                        if (shouldBeChecked === isChecked) {
+                            correctDecisions++;
+                        }
+                    });
+
+                    const ratio = correctDecisions / optionsCount;
+                    let status = 'partial';
+                    if (ratio === 1.0) status = 'perfect';
+                    else if (ratio === 0.0) status = 'zero';
+
+                    return {
+                        rawEarned: ratio,
+                        rawMax: 1.0,
+                        ratio: ratio,
+                        status: status,
+                        correctDecisions,
+                        totalOptions: optionsCount
+                    };
+                } else if (q.type === 'true_false') {
+                    const stmtCount = q.statements ? q.statements.length : 1;
+                    if (!userAns || typeof userAns !== 'object') {
+                        return { rawEarned: 0, rawMax: stmtCount, ratio: 0, status: 'unanswered' };
+                    }
+
+                    let correctStatements = 0;
+                    let answeredCount = 0;
+
+                    q.statements.forEach((stmt, idx) => {
+                        if (userAns[idx] !== undefined) {
+                            answeredCount++;
+                            if (userAns[idx] === stmt.answer) {
+                                correctStatements++;
+                            }
+                        }
+                    });
+
+                    if (answeredCount === 0) {
+                        return { rawEarned: 0, rawMax: stmtCount, ratio: 0, status: 'unanswered' };
+                    }
+
+                    const ratio = correctStatements / stmtCount;
+                    let status = 'partial';
+                    if (ratio === 1.0) status = 'perfect';
+                    else if (ratio === 0.0) status = 'zero';
+
+                    return {
+                        rawEarned: correctStatements,
+                        rawMax: stmtCount,
+                        ratio: ratio,
+                        status: status,
+                        correctStatements,
+                        totalStatements: stmtCount
+                    };
+                }
+
+                return { rawEarned: 0, rawMax: 1.0, ratio: 0, status: 'unanswered' };
+            }
+
+            finishQuiz() {
+                if (this.quizState.timerInterval) clearInterval(this.quizState.timerInterval);
+                this.quizState.endTime = new Date();
+
+                let totalEarnedRaw = 0;
+                let totalMaxRaw = 0;
+
+                let perfectCount = 0;
+                let partialCount = 0;
+                let zeroCount = 0;
+                let unansweredCount = 0;
+
+                const categoryStats = {};
+
+                this.quizState.questions.forEach(q => {
+                    const cat = q.category || 'Umum';
+                    if (!categoryStats[cat]) {
+                        categoryStats[cat] = { earnedRaw: 0, maxRaw: 0 };
+                    }
+
+                    const userAns = this.quizState.userAnswers[q.id];
+                    const scoreObj = this.calculateQuestionScore(q, userAns);
+
+                    totalEarnedRaw += scoreObj.rawEarned;
+                    totalMaxRaw += scoreObj.rawMax;
+
+                    categoryStats[cat].earnedRaw += scoreObj.rawEarned;
+                    categoryStats[cat].maxRaw += scoreObj.rawMax;
+
+                    if (scoreObj.status === 'perfect') perfectCount++;
+                    else if (scoreObj.status === 'partial') partialCount++;
+                    else if (scoreObj.status === 'zero') zeroCount++;
+                    else if (scoreObj.status === 'unanswered') unansweredCount++;
+                });
+
+                const finalScore = totalMaxRaw > 0 ? ((totalEarnedRaw / totalMaxRaw) * 100) : 0;
+                const finalScoreFormatted = finalScore.toFixed(2);
+
+                document.getElementById('result-bank-title').textContent = `Bank Soal: ${this.activeBank ? this.activeBank.title : '-'}`;
+                document.getElementById('res-stat-score').textContent = finalScoreFormatted;
+                document.getElementById('res-stat-raw').textContent = `Poin Mentah: ${totalEarnedRaw.toFixed(2)} / ${totalMaxRaw.toFixed(2)}`;
+                document.getElementById('res-stat-perfect').textContent = perfectCount;
+                document.getElementById('res-stat-perfect-pct').textContent = `${((perfectCount / this.quizState.questions.length) * 100).toFixed(1)}% Soal Utuh`;
+                document.getElementById('res-stat-partial').textContent = partialCount;
+                document.getElementById('res-stat-zero').textContent = zeroCount + unansweredCount;
+
+                const durationMs = this.quizState.endTime - this.quizState.startTime;
+                const totalMins = Math.floor(durationMs / 60000);
+                const durationHours = Math.floor(totalMins / 60);
+                const durationMins = totalMins % 60;
+                const durationSecs = Math.floor((durationMs % 60000) / 1000);
+
+                let durationText = "";
+                if (durationHours > 0) {
+                    durationText = `Durasi: ${durationHours}j ${durationMins}m ${durationSecs}s`;
+                } else {
+                    durationText = `Durasi: ${durationMins}m ${durationSecs}s`;
+                }
+                document.getElementById('res-stat-time').textContent = durationText;
+
+                this.renderCategoryBreakdown(categoryStats);
+                this.renderLearningRecommendations(categoryStats);
+                this.renderReviewList('all');
+
+                this.showResultView();
+            }
+
+            renderCategoryBreakdown(stats) {
+                const container = document.getElementById('result-category-breakdown');
+                container.innerHTML = '';
+
+                Object.keys(stats).forEach(cat => {
+                    const item = stats[cat];
+                    const pct = item.maxRaw > 0 ? ((item.earnedRaw / item.maxRaw) * 100) : 0;
+                    const pctFormatted = pct.toFixed(1);
+
+                    let barColor = "bg-emerald-500";
+                    if (pct < 50) barColor = "bg-rose-500";
+                    else if (pct < 75) barColor = "bg-amber-500";
+
+                    const div = document.createElement('div');
+                    div.className = "space-y-1.5";
+                    div.innerHTML = `
+                        <div class="flex justify-between text-xs font-semibold text-slate-700">
+                            <span>${this.escapeHtml(cat)}</span>
+                            <span class="text-slate-500">${item.earnedRaw.toFixed(2)}/${item.maxRaw.toFixed(2)} Poin (${pctFormatted}%)</span>
+                        </div>
+                        <div class="w-full h-2.5 bg-slate-100 rounded-full overflow-hidden">
+                            <div class="h-full ${barColor} transition-all duration-500" style="width: ${pctFormatted}%"></div>
+                        </div>
+                    `;
+                    container.appendChild(div);
+                });
+            }
+
+            renderLearningRecommendations(stats) {
+                const container = document.getElementById('result-learning-recommendation');
+                container.innerHTML = '';
+
+                let weakestCat = null;
+                let lowestPct = 101;
+
+                Object.keys(stats).forEach(cat => {
+                    const pct = stats[cat].maxRaw > 0 ? (stats[cat].earnedRaw / stats[cat].maxRaw) * 100 : 0;
+                    if (pct < lowestPct) {
+                        lowestPct = pct;
+                        weakestCat = cat;
+                    }
+                });
+
+                const recommendations = [];
+
+                if (lowestPct < 70 && weakestCat) {
+                    recommendations.push({
+                        title: `Prioritas Evaluasi: ${weakestCat}`,
+                        desc: `Akurasi bobot poin Anda pada kategori ${weakestCat} berada di angka ${lowestPct.toFixed(1)}%. Perbanyak latihan dan pelajari pemahaman konsep pada kategori ini.`,
+                        type: 'warning'
+                    });
+                } else {
+                    recommendations.push({
+                        title: `Performa Rubrik Sangat Memuaskan!`,
+                        desc: `Anda berhasil meraih persentase poin yang tinggi secara konsisten di setiap bidang TKA.`,
+                        type: 'success'
+                    });
+                }
+
+                recommendations.push({
+                    title: `Sistem Skor Parsial TKA`,
+                    desc: `Setiap poin pernyataan Benar/Salah dan sub-opsi Kompleks memberikan kontribusi kredit skor. Mempertimbangkan setiap pernyataan secara terpisah akan memaksimalkan nilai akhir Anda.`,
+                    type: 'info'
+                });
+
+                container.innerHTML = recommendations.map(rec => {
+                    let borderBg = "border-amber-200 bg-amber-50/50 text-amber-900";
+                    let icon = "alert-circle";
+                    let iconColor = "text-amber-600";
+
+                    if (rec.type === 'success') {
+                        borderBg = "border-emerald-200 bg-emerald-50/50 text-emerald-900";
+                        icon = "check-circle-2";
+                        iconColor = "text-emerald-600";
+                    } else if (rec.type === 'info') {
+                        borderBg = "border-brand-200 bg-brand-50/50 text-brand-900";
+                        icon = "info";
+                        iconColor = "text-brand-600";
+                    }
+
+                    return `
+                        <div class="p-4 rounded-xl border ${borderBg} flex items-start space-x-3">
+                            <i data-lucide="${icon}" class="w-5 h-5 ${iconColor} flex-shrink-0 mt-0.5"></i>
+                            <div>
+                                <h4 class="font-bold text-xs leading-tight mb-1">${this.escapeHtml(rec.title)}</h4>
+                                <p class="text-xs text-slate-600 leading-relaxed">${this.escapeHtml(rec.desc)}</p>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+
+                lucide.createIcons();
+            }
+
+            filterReview(filterType) {
+                document.querySelectorAll('.filter-btn').forEach(btn => {
+                    if (btn.getAttribute('data-filter') === filterType) {
+                        btn.className = "px-3 py-1.5 rounded-lg bg-slate-900 text-white font-medium filter-btn";
+                    } else {
+                        btn.className = "px-3 py-1.5 rounded-lg bg-slate-100 text-slate-600 font-medium hover:bg-slate-200 filter-btn";
+                    }
+                });
+
+                this.renderReviewList(filterType);
+            }
+
+            renderReviewList(filterType = 'all') {
+                const container = document.getElementById('review-list-container');
+                container.innerHTML = '';
+
+                this.quizState.questions.forEach((q, idx) => {
+                    const userAns = this.quizState.userAnswers[q.id];
+                    const scoreObj = this.calculateQuestionScore(q, userAns);
+
+                    if (filterType === 'perfect' && scoreObj.status !== 'perfect') return;
+                    if (filterType === 'partial' && scoreObj.status !== 'partial') return;
+                    if (filterType === 'zero' && (scoreObj.status !== 'zero' && scoreObj.status !== 'unanswered')) return;
+
+                    let statusBadge = '';
+                    if (scoreObj.status === 'perfect') {
+                        statusBadge = `<span class="px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-800 text-[11px] font-bold">100% Sempurna (+${scoreObj.rawEarned.toFixed(2)} Poin)</span>`;
+                    } else if (scoreObj.status === 'partial') {
+                        statusBadge = `<span class="px-2.5 py-1 rounded-full bg-amber-100 text-amber-800 text-[11px] font-bold">Skor Parsial (+${scoreObj.rawEarned.toFixed(2)}/${scoreObj.rawMax.toFixed(2)} Poin)</span>`;
+                    } else if (scoreObj.status === 'unanswered') {
+                        statusBadge = `<span class="px-2.5 py-1 rounded-full bg-slate-200 text-slate-700 text-[11px] font-bold">Tidak Terjawab (0 Poin)</span>`;
+                    } else {
+                        statusBadge = `<span class="px-2.5 py-1 rounded-full bg-rose-100 text-rose-800 text-[11px] font-bold">Salah Total (0 Poin)</span>`;
+                    }
+
+                    const card = document.createElement('div');
+                    card.className = "p-5 rounded-2xl border border-slate-200 bg-slate-50/50 space-y-4";
+
+                    let optionsReview = '';
+
+                    if (q.type === 'single') {
+                        optionsReview = q.options.map((opt, oIdx) => {
+                            const isUserPick = (userAns === oIdx);
+                            const isAnswerKey = (q.answer === oIdx);
+
+                            let highlight = "bg-white border-slate-200 text-slate-700";
+                            if (isAnswerKey) highlight = "bg-emerald-50 border-emerald-400 text-emerald-900 font-semibold";
+                            if (isUserPick && !isAnswerKey) highlight = "bg-rose-50 border-rose-400 text-rose-900 font-semibold";
+
+                            return `
+                                <div class="p-3 rounded-xl border text-xs flex items-center justify-between ${highlight}">
+                                    <span>${String.fromCharCode(65 + oIdx)}. ${this.escapeHtml(opt)}</span>
+                                    <div>
+                                        ${isAnswerKey ? '<span class="text-[10px] bg-emerald-600 text-white px-2 py-0.5 rounded font-bold">Kunci Jawaban</span>' : ''}
+                                        ${isUserPick && !isAnswerKey ? '<span class="text-[10px] bg-rose-600 text-white px-2 py-0.5 rounded font-bold ml-1">Pilihan Anda</span>' : ''}
+                                    </div>
+                                </div>
+                            `;
+                        }).join('');
+                    } else if (q.type === 'multiple') {
+                        const userArr = Array.isArray(userAns) ? userAns : [];
+                        optionsReview = q.options.map((opt, oIdx) => {
+                            const isUserPick = userArr.includes(oIdx);
+                            const isAnswerKey = Array.isArray(q.answer) && q.answer.includes(oIdx);
+                            const decisionCorrect = (isUserPick === isAnswerKey);
+
+                            let highlight = "bg-white border-slate-200 text-slate-700";
+                            if (decisionCorrect && isAnswerKey) highlight = "bg-emerald-50 border-emerald-400 text-emerald-900 font-semibold";
+                            else if (!decisionCorrect) highlight = "bg-rose-50 border-rose-300 text-rose-900";
+
+                            return `
+                                <div class="p-3 rounded-xl border text-xs flex items-center justify-between ${highlight}">
+                                    <span>${this.escapeHtml(opt)}</span>
+                                    <div class="space-x-1">
+                                        ${isAnswerKey ? '<span class="text-[10px] bg-emerald-600 text-white px-2 py-0.5 rounded font-bold">Harus Dicentang</span>' : '<span class="text-[10px] bg-slate-200 text-slate-600 px-2 py-0.5 rounded">Jangan Dicentang</span>'}
+                                        ${isUserPick ? '<span class="text-[10px] bg-brand-600 text-white px-2 py-0.5 rounded font-bold">Anda Centang</span>' : ''}
+                                        ${decisionCorrect ? '<span class="text-[10px] text-emerald-600 font-bold ml-1">✓ Benar</span>' : '<span class="text-[10px] text-rose-600 font-bold ml-1">✗ Keliru</span>'}
+                                    </div>
+                                </div>
+                            `;
+                        }).join('');
+                    } else if (q.type === 'true_false') {
+                        const userObj = (userAns && typeof userAns === 'object') ? userAns : {};
+                        optionsReview = `
+                            <div class="overflow-hidden border border-slate-200 rounded-xl bg-white text-xs">
+                                <table class="w-full text-left">
+                                    <thead class="bg-slate-100 text-slate-600 font-bold border-b border-slate-200">
+                                        <tr>
+                                            <th class="p-2.5">Pernyataan</th>
+                                            <th class="p-2.5 text-center">Jawaban Anda</th>
+                                            <th class="p-2.5 text-center">Kunci</th>
+                                            <th class="p-2.5 text-center">Kredit Poin</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-slate-100">
+                                        ${q.statements.map((s, sIdx) => {
+                                            const uVal = userObj[sIdx];
+                                            const kVal = s.answer;
+                                            const match = (uVal === kVal);
+
+                                            return `
+                                                <tr>
+                                                    <td class="p-2.5 font-medium text-slate-700">${this.escapeHtml(s.text)}</td>
+                                                    <td class="p-2.5 text-center font-bold ${match ? 'text-emerald-600' : 'text-rose-600'}">
+                                                        ${uVal === true ? 'Benar (✓)' : (uVal === false ? 'Salah (✗)' : '-')}
+                                                    </td>
+                                                    <td class="p-2.5 text-center font-bold text-emerald-700">
+                                                        ${kVal === true ? 'Benar (✓)' : 'Salah (✗)'}
+                                                    </td>
+                                                    <td class="p-2.5 text-center font-bold ${match ? 'text-emerald-600' : 'text-rose-500'}">
+                                                        ${match ? '+1.00' : '0.00'}
+                                                    </td>
+                                                </tr>
+                                            `;
+                                        }).join('')}
+                                    </tbody>
+                                </table>
+                            </div>
+                        `;
+                    }
+
+                    card.innerHTML = `
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-bold text-slate-500">Soal #${idx + 1} • ${q.category || 'TKA'}</span>
+                            ${statusBadge}
+                        </div>
+                        <p class="text-sm font-semibold text-slate-800 leading-relaxed whitespace-pre-line">${this.escapeHtml(q.question)}</p>
+                        <div class="space-y-2 pt-2">${optionsReview}</div>
+                        <div class="p-4 rounded-xl bg-indigo-50/60 border border-indigo-100 text-xs text-indigo-950 space-y-1">
+                            <p class="font-bold text-indigo-900 flex items-center space-x-1">
+                                <i data-lucide="book-open" class="w-3.5 h-3.5"></i>
+                                <span>Pembahasan & Panduan Rubrik:</span>
+                            </p>
+                            <p class="leading-relaxed whitespace-pre-line">${this.escapeHtml(q.explanation || 'Tidak ada pembahasan khusus untuk soal ini.')}</p>
+                        </div>
+                    `;
+
+                    container.appendChild(card);
+                });
+
+                lucide.createIcons();
+            }
+
+            showDashboard() {
+                document.getElementById('view-dashboard').classList.remove('hidden');
+                document.getElementById('view-quiz').classList.add('hidden');
+                document.getElementById('view-result').classList.add('hidden');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+
+            showQuizView() {
+                document.getElementById('view-dashboard').classList.add('hidden');
+                document.getElementById('view-quiz').classList.remove('hidden');
+                document.getElementById('view-result').classList.add('hidden');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+
+            showResultView() {
+                document.getElementById('view-dashboard').classList.add('hidden');
+                document.getElementById('view-quiz').classList.add('hidden');
+                document.getElementById('view-result').classList.remove('hidden');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+
+            showToast(message, type = 'info') {
+                const container = document.getElementById('toast-container');
+                const toast = document.createElement('div');
+
+                let bg = "bg-slate-900 text-white";
+                if (type === 'success') bg = "bg-emerald-600 text-white";
+                if (type === 'error') bg = "bg-rose-600 text-white";
+
+                toast.className = `px-4 py-3 rounded-xl shadow-lg font-medium text-xs flex items-center space-x-2 transition-all transform translate-y-2 opacity-0 pointer-events-auto ${bg}`;
+                toast.innerHTML = `<span>${this.escapeHtml(message)}</span>`;
+
+                container.appendChild(toast);
+
+                setTimeout(() => {
+                    toast.classList.remove('translate-y-2', 'opacity-0');
+                }, 10);
+
+                setTimeout(() => {
+                    toast.classList.add('opacity-0');
+                    setTimeout(() => toast.remove(), 300);
+                }, 3500);
+            }
+
+            showModal({ title, message, icon = 'alert-circle', iconBg = 'bg-amber-100 text-amber-600', confirmText = 'Ya', onConfirm }) {
+                const overlay = document.getElementById('modal-overlay');
+                const titleEl = document.getElementById('modal-title');
+                const msgEl = document.getElementById('modal-message');
+                const iconEl = document.getElementById('modal-icon');
+                const iconBgEl = document.getElementById('modal-icon-bg');
+                const btnCancel = document.getElementById('modal-btn-cancel');
+                const btnConfirm = document.getElementById('modal-btn-confirm');
+
+                titleEl.textContent = title;
+                msgEl.textContent = message;
+                iconEl.setAttribute('data-lucide', icon);
+                iconBgEl.className = `w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${iconBg}`;
+                btnConfirm.textContent = confirmText;
+
+                lucide.createIcons();
+
+                overlay.classList.remove('hidden');
+
+                const closeModal = () => {
+                    overlay.classList.add('hidden');
+                };
+
+                btnCancel.onclick = closeModal;
+                btnConfirm.onclick = () => {
+                    closeModal();
+                    if (onConfirm) onConfirm();
+                };
+            }
+
+            escapeHtml(str) {
+                if (!str) return '';
+                return String(str)
+                    .replace(/&/g, "&amp;")
+                    .replace(/</g, "&lt;")
+                    .replace(/>/g, "&gt;")
+                    .replace(/"/g, "&quot;")
+                    .replace(/'/g, "&#039;");
+            }
+        }
+
+        let app;
+        window.addEventListener('DOMContentLoaded', () => {
+            app = new TKAMasterApp();
+        });
+    </script>
+</body>
+</html>
